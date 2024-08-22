@@ -154,10 +154,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Funzione per calcolare e mostrare i risultati
     window.calcolaRisultati = function() {
-        const tipoLocale = document.querySelector('#tipoLocale').innerText.split(': ')[1];
-        const dimensione = parseInt(document.querySelector('#dimensione').innerText.split(': ')[1]);
-        const zona = document.querySelector('#zona').innerText.split(': ')[1];
-        
+        const tipoLocaleElem = document.querySelector('#tipoLocale');
+        const dimensioneElem = document.querySelector('#dimensione');
+        const zonaElem = document.querySelector('#zona');
+
+        // Verifica che gli elementi siano trovati
+        if (!tipoLocaleElem || !dimensioneElem || !zonaElem) {
+            console.error('Non tutti gli elementi richiesti sono presenti nel DOM.');
+            return;
+        }
+
+        const tipoLocale = tipoLocaleElem.innerText.split(': ')[1];
+        const dimensione = parseInt(dimensioneElem.innerText.split(': ')[1]);
+        const zona = zonaElem.innerText.split(': ')[1];
+
         const personaleUtente = parseFloat(document.querySelector('#personale').value);
         const ricaricoUtente = parseFloat(document.querySelector('#ricarico').value);
         const giorniUtente = parseInt(document.querySelector('#giorni').value);
