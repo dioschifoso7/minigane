@@ -35,7 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
             dimensione = dimensioniPiccole[Math.floor(Math.random() * dimensioniPiccole.length)];
         } else if (livello === 2) {
             tipoLocale = tipiLocaliLivello2[Math.floor(Math.random() * tipiLocaliLivello2.length)];
-            dimensione = dimensioniGrandi[Math.floor(Math.random() * dimensioniGrandi.length)];
+            const dimensioniDisponibili = [600, 1000];
+            dimensione = dimensioniDisponibili[Math.floor(Math.random() * dimensioniDisponibili.length)];
         }
         const zona = zone[Math.floor(Math.random() * zone.length)];
         return { tipoLocale, dimensione, zona };
@@ -120,82 +121,70 @@ document.addEventListener('DOMContentLoaded', () => {
         return (punteggioPersonale + punteggioRicarico + punteggioGiorni) / 3;
     }
 
-// Funzione per mostrare il livello
-function mostraLivello(livello) {
-    const { tipoLocale, dimensione, zona } = generaCombinazioneRandomica(livello);
-    let formHtml = `
-        <h2>Livello ${livello}</h2>
-        <p id="tipoLocale">Tipo di Locale: ${tipoLocale}</p>
-        <p id="dimensione">Dimensione: ${dimensione} m²</p>
-        <p id="zona">Zona: ${zona}</p>
-        <div class="form-group">
-            <label for="personale">Numero di Dipendenti:</label>
-            <input type="number" id="personale" />
-        </div>
-        <div class="form-group">
-            <label for="ricarico">Ricarico Medio (%):</label>
-            <input type="number" id="ricarico" step="0.01" />
-        </div>
-        <div class="form-group">
-            <label for="giorni">Giorni di Apertura Annuali:</label>
-            <input type="number" id="giorni" />
-        </div>
-        ${livello === 2 ? `
+    // Funzione per mostrare il livello
+    function mostraLivello(livello) {
+        const { tipoLocale, dimensione, zona } = generaCombinazioneRandomica(livello);
+        let formHtml = `
+            <h2>Livello ${livello}</h2>
+            <p id="tipoLocale">Tipo di Locale: ${tipoLocale}</p>
+            <p id="dimensione">Dimensione: ${dimensione} m²</p>
+            <p id="zona">Zona: ${zona}</p>
             <div class="form-group">
-                <label for="coperti">Numero di Coperti Giornalieri Medi Necessari:</label>
-                <input type="number" id="coperti" />
+                <label for="personale">Numero di Dipendenti:</label>
+                <input type="number" id="personale" />
             </div>
-        ` : ''}
-        <button onclick="calcolaRisultati()">Calcola</button>
-        <div id="risultati" class="result"></div>
-    `;
-    gameContainer.innerHTML = formHtml;
-}
+            <div class="form-group">
+                <label for="ricarico">Ricarico Medio (%):</label>
+                <input type="number" id="ricarico" step="0.01" />
+            </div>
+            <div class="form-group">
+                <label for="giorni">Giorni di Apertura Annuali:</label>
+                <input type="number" id="giorni" />
+            </div>
+            ${livello === 2 ? `
+                <div class="form-group">
+                    <label for="coperti">Numero di Coperti Giornalieri Medi Necessari:</label>
+                    <input type="number" id="coperti" />
+                </div>
+            ` : ''}
+            <button onclick="calcolaRisultati()">Calcola</button>
+            ${livello === 2 ? `<button onclick="avanzaLivello()">Avanza al Livello Successivo</button>` : ''}
+            <div id="risultati" class="result"></div>
+        `;
+        gameContainer.innerHTML = formHtml;
+    }
 
-// Funzione per calcolare e mostrare i risultati
-window.calcolaRisultati = function() {
-    const livello = currentLevel;
-    
-    // Trova i valori inseriti nei campi di input
-    const personaleUtente = parseFloat(document.querySelector('#personale').value) || 0;
-    const ricaricoUtente = parseFloat(document.querySelector('#ricarico').value) || 0;
-    const giorniUtente = parseInt(document.querySelector('#giorni').value) || 0;
-    const copertiUtente = livello === 2 ? parseFloat(document.querySelector('#coperti').value) || 0 : null;
+    // Funzione per calcolare e mostrare i risultati
+    window.calcolaRisultati = function() {
+        const livello = currentLevel;
+        
+        const personaleUtente = parseFloat(document.querySelector('#personale').value) || 0;
+        const ricaricoUtente = parseFloat(document.querySelector('#ricarico').value) || 0;
+        const giorniUtente = parseInt(document.querySelector('#giorni').value) || 0;
+        const copertiUtente = livello === 2 ? parseFloat(document.querySelector('#coperti').value) || 0 : null;
 
-    // Trova le informazioni sulla combinazione
-    const tipoLocale = document.querySelector('#tipoLocale') ? document.querySelector('#tipoLocale').innerText : '';
-    const dimensione = document.querySelector('#dimensione') ? parseInt(document.querySelector('#dimensione').innerText) : 0;
-    const zona = document.querySelector('#zona') ? document.querySelector('#zona').innerText : '';
-
-    // Calcola il punteggio
-    const punteggio = calcolaPunteggio(personaleUtente, ricaricoUtente, giorniUtente, tipoLocale, dimensione, zona);
-    
-    // Mostra i risultati
-    const risultatiHtml = `
-        <p>Punteggio di Conformità: ${punteggio.toFixed(2)} (dove 1 è perfetto e 0 è fuori standard)</p>
-        ${livello === 2 ? `<p>Coperti Ottimali: ${calcolaCopertiNecessari(dimensione, tipoLocale).toFixed(2)}</p>` : ''}
-    `;
-    document.getElementById('risultati').innerHTML = risultatiHtml;
-};
-
-
-        const tipoLocale = tipoLocaleElem.innerText.split(': ')[1];
-        const dimensione = parseInt(dimensioneElem.innerText.split(': ')[1]);
-        const zona = zonaElem.innerText.split(': ')[1];
-
-        const personaleUtente = parseFloat(document.querySelector('#personale').value);
-        const ricaricoUtente = parseFloat(document.querySelector('#ricarico').value);
-        const giorniUtente = parseInt(document.querySelector('#giorni').value);
-        const copertiUtente = currentLevel === 2 ? parseFloat(document.querySelector('#coperti').value) : null;
+        const tipoLocale = document.querySelector('#tipoLocale') ? document.querySelector('#tipoLocale').innerText : '';
+        const dimensione = document.querySelector('#dimensione') ? parseInt(document.querySelector('#dimensione').innerText) : 0;
+        const zona = document.querySelector('#zona') ? document.querySelector('#zona').innerText : '';
 
         const punteggio = calcolaPunteggio(personaleUtente, ricaricoUtente, giorniUtente, tipoLocale, dimensione, zona);
         const risultatiHtml = `
             <p>Punteggio di Conformità: ${punteggio.toFixed(2)} (dove 1 è perfetto e 0 è fuori standard)</p>
-            ${currentLevel === 2 ? `<p>Coperti Ottimali: ${calcolaCopertiNecessari(dimensione, tipoLocale).toFixed(2)}</p>` : ''}
+            ${livello === 2 ? `<p>Coperti Ottimali: ${calcolaCopertiNecessari(dimensione, tipoLocale).toFixed(2)}</p>` : ''}
         `;
         document.getElementById('risultati').innerHTML = risultatiHtml;
+    };
+
+    // Funzione per passare al livello successivo
+    window.avanzaLivello = function() {
+        currentLevel++;
+        if (currentLevel > 2) {
+            currentLevel = 1; // Resetta al primo livello se non ci sono più livelli
+        }
+        mostraLivello(currentLevel);
     };
 
     // Inizia il gioco con il Livello 1
     mostraLivello(currentLevel);
 });
+
