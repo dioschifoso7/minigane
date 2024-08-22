@@ -35,8 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
             dimensione = dimensioniPiccole[Math.floor(Math.random() * dimensioniPiccole.length)];
         } else if (livello === 2) {
             tipoLocale = tipiLocaliLivello2[Math.floor(Math.random() * tipiLocaliLivello2.length)];
-            const dimensioniDisponibili = [600, 1000];
-            dimensione = dimensioniDisponibili[Math.floor(Math.random() * dimensioniDisponibili.length)];
+            dimensione = dimensioniGrandi[Math.floor(Math.random() * dimensioniGrandi.length)];
         }
         const zona = zone[Math.floor(Math.random() * zone.length)];
         return { tipoLocale, dimensione, zona };
@@ -126,9 +125,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const { tipoLocale, dimensione, zona } = generaCombinazioneRandomica(livello);
         let formHtml = `
             <h2>Livello ${livello}</h2>
-            <p>Tipo di Locale: ${tipoLocale}</p>
-            <p>Dimensione: ${dimensione} m²</p>
-            <p>Zona: ${zona}</p>
+            <p id="tipoLocale">Tipo di Locale: ${tipoLocale}</p>
+            <p id="dimensione">Dimensione: ${dimensione} m²</p>
+            <p id="zona">Zona: ${zona}</p>
             <div class="form-group">
                 <label for="personale">Numero di Dipendenti:</label>
                 <input type="number" id="personale" />
@@ -155,20 +154,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Funzione per calcolare e mostrare i risultati
     window.calcolaRisultati = function() {
-        const livello = currentLevel;
-        const tipoLocale = document.querySelector('#tipoLocale').innerText;
-        const dimensione = parseInt(document.querySelector('#dimensione').innerText);
-        const zona = document.querySelector('#zona').innerText;
+        const tipoLocale = document.querySelector('#tipoLocale').innerText.split(': ')[1];
+        const dimensione = parseInt(document.querySelector('#dimensione').innerText.split(': ')[1]);
+        const zona = document.querySelector('#zona').innerText.split(': ')[1];
         
         const personaleUtente = parseFloat(document.querySelector('#personale').value);
         const ricaricoUtente = parseFloat(document.querySelector('#ricarico').value);
         const giorniUtente = parseInt(document.querySelector('#giorni').value);
-        const copertiUtente = livello === 2 ? parseFloat(document.querySelector('#coperti').value) : null;
+        const copertiUtente = currentLevel === 2 ? parseFloat(document.querySelector('#coperti').value) : null;
 
         const punteggio = calcolaPunteggio(personaleUtente, ricaricoUtente, giorniUtente, tipoLocale, dimensione, zona);
         const risultatiHtml = `
             <p>Punteggio di Conformità: ${punteggio.toFixed(2)} (dove 1 è perfetto e 0 è fuori standard)</p>
-            ${livello === 2 ? `<p>Coperti Ottimali: ${calcolaCopertiNecessari(dimensione, tipoLocale).toFixed(2)}</p>` : ''}
+            ${currentLevel === 2 ? `<p>Coperti Ottimali: ${calcolaCopertiNecessari(dimensione, tipoLocale).toFixed(2)}</p>` : ''}
         `;
         document.getElementById('risultati').innerHTML = risultatiHtml;
     };
