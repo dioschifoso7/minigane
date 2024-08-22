@@ -120,49 +120,64 @@ document.addEventListener('DOMContentLoaded', () => {
         return (punteggioPersonale + punteggioRicarico + punteggioGiorni) / 3;
     }
 
-    // Funzione per mostrare il livello
-    function mostraLivello(livello) {
-        const { tipoLocale, dimensione, zona } = generaCombinazioneRandomica(livello);
-        let formHtml = `
-            <h2>Livello ${livello}</h2>
-            <p id="tipoLocale">Tipo di Locale: ${tipoLocale}</p>
-            <p id="dimensione">Dimensione: ${dimensione} m²</p>
-            <p id="zona">Zona: ${zona}</p>
+// Funzione per mostrare il livello
+function mostraLivello(livello) {
+    const { tipoLocale, dimensione, zona } = generaCombinazioneRandomica(livello);
+    let formHtml = `
+        <h2>Livello ${livello}</h2>
+        <p id="tipoLocale">Tipo di Locale: ${tipoLocale}</p>
+        <p id="dimensione">Dimensione: ${dimensione} m²</p>
+        <p id="zona">Zona: ${zona}</p>
+        <div class="form-group">
+            <label for="personale">Numero di Dipendenti:</label>
+            <input type="number" id="personale" />
+        </div>
+        <div class="form-group">
+            <label for="ricarico">Ricarico Medio (%):</label>
+            <input type="number" id="ricarico" step="0.01" />
+        </div>
+        <div class="form-group">
+            <label for="giorni">Giorni di Apertura Annuali:</label>
+            <input type="number" id="giorni" />
+        </div>
+        ${livello === 2 ? `
             <div class="form-group">
-                <label for="personale">Numero di Dipendenti:</label>
-                <input type="number" id="personale" />
+                <label for="coperti">Numero di Coperti Giornalieri Medi Necessari:</label>
+                <input type="number" id="coperti" />
             </div>
-            <div class="form-group">
-                <label for="ricarico">Ricarico Medio (%):</label>
-                <input type="number" id="ricarico" step="0.01" />
-            </div>
-            <div class="form-group">
-                <label for="giorni">Giorni di Apertura Annuali:</label>
-                <input type="number" id="giorni" />
-            </div>
-            ${livello === 2 ? `
-                <div class="form-group">
-                    <label for="coperti">Numero di Coperti Giornalieri Medi Necessari:</label>
-                    <input type="number" id="coperti" />
-                </div>
-            ` : ''}
-            <button onclick="calcolaRisultati()">Calcola</button>
-            <div id="risultati" class="result"></div>
-        `;
-        gameContainer.innerHTML = formHtml;
-    }
+        ` : ''}
+        <button onclick="calcolaRisultati()">Calcola</button>
+        <div id="risultati" class="result"></div>
+    `;
+    gameContainer.innerHTML = formHtml;
+}
 
-    // Funzione per calcolare e mostrare i risultati
-    window.calcolaRisultati = function() {
-        const tipoLocaleElem = document.querySelector('#tipoLocale');
-        const dimensioneElem = document.querySelector('#dimensione');
-        const zonaElem = document.querySelector('#zona');
+// Funzione per calcolare e mostrare i risultati
+window.calcolaRisultati = function() {
+    const livello = currentLevel;
+    
+    // Trova i valori inseriti nei campi di input
+    const personaleUtente = parseFloat(document.querySelector('#personale').value) || 0;
+    const ricaricoUtente = parseFloat(document.querySelector('#ricarico').value) || 0;
+    const giorniUtente = parseInt(document.querySelector('#giorni').value) || 0;
+    const copertiUtente = livello === 2 ? parseFloat(document.querySelector('#coperti').value) || 0 : null;
 
-        // Verifica che gli elementi siano trovati
-        if (!tipoLocaleElem || !dimensioneElem || !zonaElem) {
-            console.error('Non tutti gli elementi richiesti sono presenti nel DOM.');
-            return;
-        }
+    // Trova le informazioni sulla combinazione
+    const tipoLocale = document.querySelector('#tipoLocale') ? document.querySelector('#tipoLocale').innerText : '';
+    const dimensione = document.querySelector('#dimensione') ? parseInt(document.querySelector('#dimensione').innerText) : 0;
+    const zona = document.querySelector('#zona') ? document.querySelector('#zona').innerText : '';
+
+    // Calcola il punteggio
+    const punteggio = calcolaPunteggio(personaleUtente, ricaricoUtente, giorniUtente, tipoLocale, dimensione, zona);
+    
+    // Mostra i risultati
+    const risultatiHtml = `
+        <p>Punteggio di Conformità: ${punteggio.toFixed(2)} (dove 1 è perfetto e 0 è fuori standard)</p>
+        ${livello === 2 ? `<p>Coperti Ottimali: ${calcolaCopertiNecessari(dimensione, tipoLocale).toFixed(2)}</p>` : ''}
+    `;
+    document.getElementById('risultati').innerHTML = risultatiHtml;
+};
+
 
         const tipoLocale = tipoLocaleElem.innerText.split(': ')[1];
         const dimensione = parseInt(dimensioneElem.innerText.split(': ')[1]);
