@@ -187,4 +187,3 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inizia il gioco con il Livello 1
     mostraLivello(currentLevel);
 });
-
